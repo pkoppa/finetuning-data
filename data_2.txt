@@ -1,4 +1,5 @@
-Executive Summary of FlexPod Datacenter with Red Hat OCP Bare Metal Manual Configuration with Cisco UCS X-Series Direct De-ployment Guide
+Executive Summary of FlexPod for Accelerated RAG Pipeline with NVIDIA NIM and Cisco Webex  Design and Deployment Guide
+
 The FlexPod Datacenter solution offers a validated design for implementing Cisco and NetApp technologies to create shared private and public cloud infrastructures. 
 Through their partnership, Cisco and NetApp have de-veloped a range of FlexPod solutions that support strategic data center platforms. 
 The success of the FlexPod solution is attributed to its capacity to adapt and integrate technological and product advancements in man-agement, computing, storage, and networking. 
