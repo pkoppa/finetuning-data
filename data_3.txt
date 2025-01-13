@@ -1,0 +1,19 @@
+FlexPod for Accelerated RAG Pipeline with NVIDIA NIM and Cisco Webex  Design and Deployment Guide
+Introduction
+The FlexPod Datacenter for Accelerated RAG Pipeline with NVIDIA NIM and Cisco Webex configuration repre-sents a cohesive and flexible infrastructure solution that combines computing hardware, networking, storage, and software resources into a single, integrated architecture. Designed as a collaborative effort between Cisco, NetApp, NVIDIA, and Red Hat, this converged infrastructure platform is designed to deliver high levels of effi-ciency, scalability, and performance, suitable for Generative AI workloads. By standardizing on a validated de-sign, organizations can accelerate deployment, reduce operational complexities, and confidently scale their IT operations to meet evolving business demands. This FlexPod architecture leverages Cisco's Unified Computing System (UCS) servers, Cisco Nexus networking, and NetApp's innovative storage systems combined with Red Hat’s container management platform and NVIDIA GPUs and AI software, providing a robust foundation for both virtualized and non-virtualized environments.
+Retrieval Augmented Generation, or RAG, is the process of augmenting large language models with domain specific information. During RAG, the pipeline applies the knowledge and patterns that the model acquired dur-ing its training phase and couples that with user-supplied data sources to provide more informed responses to user queries. 
+The solution demonstrates how enterprises can design and implement a technology stack leveraging Genera-tive Pre-trained Transformer (GPT), enabling them to privately run and manage their preferred AI large lan-guage models (LLMs) and related applications. It emphasizes Retrieval Augmented Generation as the key use case. The hardware and software components are seamlessly integrated, allowing customers to deploy the solution swiftly and cost-effectively, while mitigating many of the risks involved in independently researching, designing, building, and deploying similar systems on their own.
+Audience
+The intended audience of this document includes IT decision makers such as CTOs and CIOs, IT architects, sales engineers, field consultants, professional services, IT managers, partner engineers, and customers. It is designed for those interested in the design, deployment, and life cycle management of generative AI systems and applications, as well as those looking to leverage an infrastructure that enhances IT efficiency and fosters innovation. 
+Purpose of this Document
+This document provides design and deployment guidance for running Retrieval Augmented Generation pipeline using NVIDIA NIM microservices deployed on FlexPod Datacenter and Cisco Webex Chat bot for inferencing. 
+What’s New in this Release?
+The following design elements are built on the CVD: FlexPod Datacenter with Red Hat OCP Bare Metal Manual Configuration with Cisco UCS X-Series Direct Deployment Guide to implement an end-to-end Retrieval Aug-mented Generation pipeline with NVIDIA NIM and Cisco Webex:
+●	Installation and configuration of RAG pipeline components on FlexPod Datacenter
+◦	NVIDIA GPUs 
+◦	NVIDIA AI Enterprise (NVAIE)
+◦	NVIDIA NIM microservices
+●	Integrating RAG pipeline with Cisco Webex Chat bot
+●	RAG Evaluation
+●	NIM for LLM Benchmarking
+●	Milvus Benchmarking
