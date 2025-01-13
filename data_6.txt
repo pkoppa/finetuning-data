@@ -1,0 +1,73 @@
+Cisco Intersight and Network Switch Configuration for FlexPod for Accelerated RAG Pipeline with NVIDIA NIM and Cisco Webex  Design and Deployment Guide
+This chapter provides a detailed procedure for configuring the Cisco Nexus 93600CD-GX switches for use in a FlexPod environment. 
+Note:  	The following procedures describe how to configure the Cisco Nexus switches for use in the OCP Bare Metal FlexPod environment. This procedure assumes the use of Cisco Nexus 9000 10.3(4a)M and includes the setup of NTP distribution on the bare metal VLAN. The interface-vlan feature and NTP commands are used in the setup. This procedure adds the tenant VLANs to the appropriate port-channels.
+
+The Cisco Intersight platform is a management solution delivered as a service with embedded analytics for Cisco and third-party IT infrastructures. The Cisco Intersight Managed Mode (also referred to as Cisco IMM or Intersight Managed Mode) is an architecture that manages Cisco Unified Computing System (Cisco UCS) Fabric Inter-connect–attached systems through a Redfish-based standard model. Cisco Intersight managed mode stand-ardizes both policy and operation management for Cisco UCS X210c M7 compute nodes used in this deployment guide.
+
+Cisco UCS B-Series M5, M6, M7 blades and C-Series M6 and M7 servers, connected and managed through Cisco UCS 6400 & 6500 Fabric Interconnects, are also supported by IMM. For a complete list of supported platforms, go to: https://www.cisco.com/c/en/us/td/docs/unified_computing/Intersight/b_Intersight_Managed_Mode_Configuration_Guide/b_intersight_managed_mode_guide_chapter_01010.html 
+
+Configure Server Profile Template
+In the Cisco Intersight platform, a server profile enables resource management by simplifying policy alignment and server configuration. The server profiles are derived from a server profile template. A Server profile template and its associated policies can be created using the server profile template wizard. After creating the server profile template, customers can derive multiple consistent server profiles from the template. 
+The server profile templates captured in this deployment guide supports Cisco UCS X210c M7 compute nodes with 5th Generation VICs and can be modified to support other Cisco UCS blades and rack mount servers.
+vNIC and vHBA Placement for Server Profile Template
+In this deployment, separate server profile templates are created for OCP Worker and Master Nodes where Worker Nodes have storage network interfaces to support workloads, but Master Nodes do not. The vNIC layout is explained below. While most of the policies are common across various templates, the LAN connectivity policies are unique and will use the information in the following tables: 
+●	1 vNIC is configured for OCP Master Nodes. This vNIC is manually placed as listed in Table 4.
+●	4 vNICs are configured for OCP Worker Nodes. These vNICs are manually placed as listed in Table 5. NVMe-TCP VLAN Interfaces can be added as tagged VLANs to the iSCSI vNICs when NVMe-TCP is being used.
+
+
+Management Configuration 
+The following policies are added to the management configuration:
+●	IMC Access to define the pool of IP addresses for compute node KVM access
+●	IPMI Over LAN to allow Intersight to manage IPMI messages
+●	Local User to provide local administrator to access KVM
+●	Virtual KVM to allow the Tunneled KVM
+
+
+Procedure 1.	Configure Cisco IMC Access Policy
+Step 1. 	Click Select Policy next to IMC Access and then, in the pane on the right, click Create New.
+Step 2. 	Verify correct organization is selected from the drop-down list (for example, AA02-OCP) and provide a name for the policy (for example, AA02-OCP-IMC-Access-Policy).
+Step 3. 	Click Next.
+Note:  	Since certain features are not yet enabled for Out-of-Band Configuration (accessed via the Fabric In-terconnect mgmt0 ports), we are bringing in the OOB-MGMT VLAN through the Fabric Interconnect Uplinks and mapping it as the In-Band Configuration VLAN.
+Step 4. 	Ensure UCS Server (FI-Attached) is selected.
+Step 5. 	Enable In-Band Configuration. Enter the OCP-BareMetal VLAN ID (for example, 1022) and select “IPv4 address configuration.”
+Step 6. 	Under IP Pool, click Select IP Pool and then, in the pane on the right, click Create New.
+Step 7. 	Verify the correct organization is selected from the drop-down list (for example, AA02-OCP) and provide a name for the policy (for example, AA02-OCP-BareMetal-IP-Pool). Click Next.
+Step 8. 	Ensure Configure IPv4 Pool is selected and provide the information to define a unique pool for KVM IP address assignment including an IP Block (added by clicking Add IP Blocks).
+Note:  	You will need the IP addresses of the OCP DNS servers.
+Step 9. 	Click Next.
+Step 10. 	Deselect Configure IPv6 Pool.
+Step 11. 	Click Create to finish configuring the IP address pool.
+
+Procedure 2.	Configure IPMI Over LAN Policy
+Step 1. 	Click Select Policy next to IPMI Over LAN and then, in the pane on the right, click Create New.
+Step 2. 	Verify the correct organization is selected from the drop-down list (for example, AA02) and provide a name for the policy (for example, AA02-OCP-IPMIoLAN-Policy). Click Next.
+Step 3. 	Ensure UCS Server (FI-Attached) is selected.
+Step 4. 	Ensure Enable IPMI Over LAN is selected.
+Step 5. 	From the Privilege Level drop-down list, select admin.
+Step 6. 	For Encryption Key, enter 00 to disable encryption
+
+Procedure 3.	Configure Local User Policy
+Step 1. 	Click Select Policy next to Local User and then, in the pane on the right, click Create New.
+Step 2. 	Verify the correct organization is selected from the drop-down list (for example, AA02-OCP) and provide a name for the policy (for example, AA02-OCP-LocalUser-Policy). Click Next.
+Step 3. 	Verify that UCS Server (FI-Attached) is selected.
+Step 4. 	Verify that Enforce Strong Password is selected.
+Step 5. 	Enter 0 under Password History.
+Step 6. 	Click Add New User.
+Step 7. 	Provide the username (for example, flexadmin), select a role (for example, admin), and provide a password and password confirmation.
+
+
+Procedure 4.	Configure Virtual KVM Policy
+Step 1. 	Click Select Policy next to Virtual KVM and then, in the pane on the right, click Create New.
+Step 2. 	Verify the correct organization is selected from the drop-down list (for example, AA02-OCP) and provide a name for the policy (for example, AA02-OCP-Virtual-KVM). Click Next.
+Step 3. 	Verify that UCS Server (FI-Attached) is selected.
+Step 4. 	Turn on Allow Tunneled vKVM.
+
+
+
+
+
+
+
+
+
+
