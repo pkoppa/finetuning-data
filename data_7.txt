@@ -1,0 +1,123 @@
+Storage Configuration
+Procedure 1.	Storage Configuration (optional)
+  If you have two M.2 drives in your servers you can create an optional policy to mirror these drives using RAID1.
+Step 1. 	If it is not necessary to configure a Storage Policy, click Next to continue to Network Configuration.
+Step 2. 	Click Select Policy and in the pane on the right-click Create New.
+Step 3. 	Verify the correct organization is selected from the drop-down list (for example, AA02-OCP) and provide a name for the policy (for example, AA02-OCP-M.2-RAID1-Storage). Click Next.
+Step 4. 	Enable M.2 RAID Configuration and leave the default Virtual Drive Name and Slot of the M.2 RAID controller field values, or values appropriate to your environment. Click Create.
+
+
+Network Configuration
+Procedure 1.	Create Network Configuration – LAN Connectivity for Master Nodes
+The LAN connectivity policy defines the connections and network communication resources between the server and the LAN. This policy uses pools to assign MAC addresses to servers and to identify the vNICs that the servers use to communicate with the network. For iSCSI hosts, this policy also defines an IQN address pool. 
+For consistent vNIC placement, manual vNIC placement is utilized. Additionally, the assumption is being made here that each server contains only one VIC card and Simple placement, which adds vNICs to the first VIC, is being used. If you have more than one VIC in a server, the Advanced placement will need to be used.
+
+Step 1. 	Click Select Policy next to LAN Connectivity and then, in the pane on the right, click Create New.
+Step 2. 	Verify the correct organization is selected from the drop-down list (for example, AA02-OCP), provide a name for the policy (for example, AA02-OCP-Master-M2Bt-5G-LANConn) and select UCS Server (FI-Attached) under Target Platform. Click Next.
+Step 3. 	Leave None selected under IQN and under vNIC Configuration, select Manual vNICs Placement.
+Step 4. 	Use the Add drop-down list to select vNIC from Template.
+Step 5. 	Enter the name for the vNIC from the table above (for example, eno5) and click Select vNIC Template.
+Step 6. 	In the upper right, click Create New.
+Step 7. 	Verify the correct organization is selected from the drop-down list (for example, AA02-OCP) and provide a name for the vNIC Template (for example, AA02-OCP-BareMetal-MGMT-vNIC). Click Next.
+
+Procedure 2.	Create MAC Address Pool for Fabric A and B
+Note:  	When creating the first vNIC, the MAC address pool has not been defined yet, therefore a new MAC address pool will need to be created. Two separate MAC address pools are configured for each Fabric. MAC-Pool-A will be used for all Fabric-A vNICs, and MAC-Pool-B will be used for all Fabric-B vNICs. Adjust the values in the table for your environment
+Note:  	For Masters, each server requires 1 MAC address from MAC-Pool-A, and for Workers, each server requires 3 MAC addresses from MAC-Pool-A and 2 MAC addresses from MAC-Pool-B. Adjust the size of the pool according to your requirements.
+Step 1. 	Click Select Pool under MAC Pool and then, in the pane on the right, click Create New.
+Step 2. 	Verify the correct organization is selected from the drop-down list (for example, AA02-OCP) and provide a name for the pool from Table 7 with the prefix applied depending on the vNIC being created (for example, AA02-OCP-MAC-Pool-A for Fabric A).
+Step 3. 	Click Next.
+Step 4. 	Provide the starting MAC address from Table 7 (for example, 00:25:B5:A2:0A:00)
+Step 5. 	For ease of troubleshooting FlexPod, some additional information is always coded into the MAC address pool. For example, in the starting address 00:25:B5:A2:0A:00, A2 is the rack ID and 0A indicates Fabric A.
+Step 6. 	Provide the size of the MAC address pool from Table 7 (for example, 64).
+Step 7. 	Click Create to finish creating the MAC address pool.
+Step 8. 	From the Create vNIC Template window, provide the Switch ID from Table 6.
+Step 9. 	For Consistent Device Naming (CDN), from the drop-down list, select vNIC Name.
+
+
+Procedure 3.	Create Ethernet Network Group Policy
+Ethernet Network Group policies will be created and reused on applicable vNICs as explained below. The ethernet network group policy defines the VLANs allowed for a particular vNIC, therefore multiple network group policies will be defined for this deployment as listed in Table 8.
+Table 8.	Ethernet Group Policy Values
+Group Policy Name	Native VLAN	Apply to vNICs	Allowed VLANs
+AA02-OCP-BareMetal-NetGrp	OCP-BareMetal-MGMT (1022)	eno5	OCP-BareMetal-MGMT
+AA02-OCP-iSCSI-NVMe-TCP-A-NetGrp	OCP-iSCSI-A (3012)	eno6	OCP-iSCSI-A, OCP-NVMe-TCP-A*
+AA02-OCP-iSCSI-NVMe-TCP-B-NetGrp	OCP-iSCSI-B (3022)	eno7	OCP-iSCSI-B, OCP-NVMe-TCP-B*
+AA02-OCP-NFS-NetGrp	OCP-NFS	eno8	OCP-NFS
+Note:  	*Add the NVMe-TCP VLANs when using NVMe-TCP.
+Step 1. 	Click Select Policy under Ethernet Network Group Policy and then, in the pane on the right, click Create New.
+Step 2. 	Verify the correct organization is selected from the drop-down list (for example, AA02-OCP) and provide a name for the policy from the Table 8 (for example, AA02-OCP-BareMetal-NetGrp).
+Step 3. 	Click Next.
+Step 4. 	Enter the Native VLAN ID (for example,1022) and the allowed VLANs (for example, 1022) from 
+
+Procedure 4.	Create Ethernet Network Control Policy
+The Ethernet Network Control Policy is used to enable Cisco Discovery Protocol (CDP) and Link Layer Discovery Protocol (LLDP) for the vNICs. A single policy will be created here and reused for all the vNICs.
+Step 1. 	Click Select Policy under Ethernet Network Control Policy and then, in the pane on the right, click Create New.
+Step 2. 	Verify the correct organization is selected from the drop-down list (for example, AA02-OCP) and provide a name for the policy (for example, AA02-OCP-Enable-CDP-LLDP).
+Step 3. 	Click Next.
+Step 4. 	Enable Cisco Discovery Protocol (CDP) and Enable Transmit and Enable Receive under LLDP.
+
+
+Procedure 5.	Create Ethernet QoS Policy
+Note:  	The Ethernet QoS policy is used to enable the appropriate maximum transmission unit (MTU) for all the vNICs. Across the vNICs, two policies will be created (one for MTU 1500 and one for MTU 9000) and reused for all the vNICs.
+Step 1. 	Click Select Policy under Ethernet QoS and in the pane on the right, click Create New.
+Step 2. 	Verify the correct organization is selected from the drop-down list (for example, AA02-OCP) and provide a name for the policy (for example, AA02-OCP-MTU1500-EthernetQoS). The name of the policy should conform to the MTU from Table 8.
+Step 3. 	Click Next.
+Step 4. 	Change the MTU, Bytes value to the value from Table 8.
+Step 5. 	Set the Rate Limit Mbps to 100000.
+ 
+Step 6. 	Click Create to finish setting up the Ethernet QoS policy.
+Procedure 6.	Create Ethernet Adapter Policy
+The ethernet adapter policy is used to set the interrupts, send, and receive queues, and queue ring size. The values are set according to the best-practices guidance for the operating system in use. Cisco Intersight provides a default Linux Ethernet Adapter policy for typical Linux deployments. 
+You can optionally configure a tweaked ethernet adapter policy for additional hardware receive queues handled by multiple CPUs in scenarios where there is a lot of traffic and multiple flows. In this deployment, a modified ethernet adapter policy, AA02-EthAdapter-16RXQs-5G, is created and attached to storage vNICs. Non-storage vNICs will use the default Linux-v2 Ethernet Adapter policy. 
+Table 9.	Ethernet Adapter Policy association to vNICs
+Policy Name	vNICs
+AA02-OCP-EthAdapter-Linux-v2	eno5
+AA02-OCP-EthAdapter-16RXQs-5G	eno6, eno7, eno8
+Step 1. 	Click Select Policy under Ethernet Adapter and then, in the pane on the right, click Create New.
+Step 2. 	Verify the correct organization is selected from the drop-down list (for example, AA02-OCP) and provide a name for the policy (for example, AA02-OCP-EthAdapter-Linux-v2).
+Step 3. 	Click Select Cisco Provided Configuration under Cisco Provided Ethernet Adapter Configuration.
+Step 4. 	From the list, select Linux-v2.
+Step 5. 	Click Next.
+Step 6. 	For the AA02-OCP-EthAdapter-Linux-v2 policy, click Create and skip the rest of the steps in this “Create Ethernet Adapter Policy” section.
+Step 7. 	For the AA02-OCP-EthAdapter-16RXQs-5G policy, make the following modifications to the policy:
+●	Increase Interrupts to 19
+●	Increase Receive Queue Count to 16
+●	Increase Receive Ring Size to 16384 (Leave at 4096 for 4G VICs)
+●	Increase Transmit Ring Size to 16384 (Leave at 4096 for 4G VICs)
+●	Increase Completion Queue Count to 17
+●	Ensure Receive Side Scaling is enabled
+
+
+Procedure 7.	Add vNIC(s) to LAN Connectivity Policy
+The vNIC Template exists and all policies attached. 
+Step 1. 	For PCI Order enter the number from Table 8. Verify the other values.
+Step 2. 	Click Add to add the vNIC to the LAN Connectivity Policy.
+Step 3. 	If building the Worker LAN Connectivity Policy, go back to Procedure 1 Create Network Config-uration - LAN Connectivity for Master Nodes, Step 4 and repeat the vNIC Template and vNIC creation for all five vNICs often selecting existing policies instead of creating them.
+Step 4. 	Verify all vNICs were successfully created.
+ 
+Step 5. 	Click Create to finish creating the LAN Connectivity policy.
+Procedure 8.	Complete the Master Server Profile Template
+Step 1. 	When the LAN connectivity policy is created, click Next to move to the Summary screen. 
+Step 2. 	On the Summary screen, verify the policies are mapped to various settings. The screenshots below provide the summary view for the OCP Master M.2 Boot server profile template. 
+
+
+Procedure 9.	Build the OCP Worker LAN Connectivity Policy
+The OCP Master LAN Connectivity Policy can be cloned and four vNICs added to build the OCP Worker LAN Connectivity Policy that will then be used in the OCP Worker Server Profile Template. Table 10 lists the vNICs that will be added to the cloned policy.
+Table 10.	vNIC additions for iSCSI connected storage for OCP Worker Nodes
+vNIC/vHBA Name	Switch ID	PCI Order	Fabric Failover	Native VLAN	Allowed VLANs	MTU
+eno6	A	1	N	OCP-iSCSI-A	OCP-iSCSI-A, OCP-NVMe-TCP-A	9000
+eno7	B	2	N	OCP-iSCSI-B	OCP-iSCSI-B, OCP-NVMe-TCP-B	9000
+eno8	A	3	N	OCP-NFS	OCP-NFS	9000
+Step 1. 	Log into Cisco Intersight and select Infrastructure Service > Policies. 
+Step 2. 	In the policy list, look for the <org-name>-Master-M2Bt-5G-LANConn or the LAN Connectivity policy created above. Click … to the right of the policy and select Clone.
+Step 3. 	Change the name of the cloned policy to something like AA02-OCP-Worker-M2Bt-5G-LANConn and select the correct Organization (for example, AA02-OCP).
+
+
+Procedure 10.	Create the OCP Worker Server Profile Template
+The OCP Master Server Profile Template can be cloned and modified to create the OCP Worker Server Profile Template.
+Step 1. 	Log into Cisco Intersight and select Infrastructure Service > Templates > UCS Server Profile Templates.
+Step 2. 	To the right of the OCP-Master-X210C-M7 template, click … and select Clone.
+Step 3. 	Ensure that the correct Destination Organization is selected (for example, AA02-OCP) and click Next.
+Step 4. 	Adjust the Clone Name (for example, AA02-Worker-X210C-M7) and Description as needed and click Next.
+Step 5. 	From the Templates window, click the … to the right of the newly created clone and click Edit.
+Step 6. 	Click Next until you get to Storage Configuration. If the Storage Policy needs to be added or deleted, make that adjustment.
+Step 7. 	Click Next to get to Network Configuration. Click the page icon to the right of the LAN Connectivity Policy and select the Worker LAN Connectivity Policy. Click Select.
