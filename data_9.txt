@@ -1,0 +1,14 @@
+NetApp DataOps Toolkit details for FlexPod for Accelerated RAG Pipeline with NVIDIA NIM and Cisco Webex  Design and Deployment Guide
+
+The version 2.5.0 toolkit is currently compatible with Kubernetes versions 1.20 and above, and OpenShift versions 4.7 and above.
+The toolkit is currently compatible with Trident versions 20.07 and above. Additionally, the toolkit is compatible with the following Trident backend types used in this validation:
+●	ontap-nas
+●	ontap-nas-flexgroup
+More operations and capabilities about NetApp DataOps Toolkit are available and documented here: https://github.com/NetApp/netapp-dataops-toolkit 
+Prerequisites
+The NetApp DataOps Toolkit for Kubernetes requires that Python 3.8 or above be installed on the local host. Additionally, the toolkit requires that pip for Python3 be installed on the local host. For more details regarding pip, including installation instructions, refer to the pip documentation.
+Procedure 1.	NetApp DataOps Toolkit Installation
+Step 1. 	To install the NetApp DataOps Toolkit for Kubernetes on the OCP Installer VM, run the following command:
+python3 -m pip install netapp-dataops-k8s
+Note:  	NetApp DataOps Toolkit is used to create jupyterlab, clone jupyterlab, create a snapshot for a JupyterLab workspace, and so on.
+Note:  	You can use NetApp DataOps Toolkit to create Jupyter notebooks in this solution. For more information, go to: Create a new JupyterLab workspace.
