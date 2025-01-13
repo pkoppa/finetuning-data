@@ -13,3 +13,25 @@ John George, Technical Marketing Engineer, Cisco Systems, Inc.
 John is involved in designing, developing, validating, and supporting the FlexPod Converged Infrastructure since its inception. 
 Prior to his role with FlexPod, John supported and administered a large worldwide training network and VPN infrastructure. 
 John holds a master’s degree in Computer Engineering from Clemson University.
+
+
+Mahesh Pabba, Customer Delivery Architect, Cisco Systems, Inc.
+Mahesh Pabba is a seasoned technology professional with vast experience in the IT industry. With a strong foundation in enterprise applications, he has successfully navigated various domains, excelling in automation and development using cutting-edge technologies. As a skilled Solution Architect, he has designed and implemented numerous innovative solutions throughout his career. Additionally, he possesses expertise in artificial intelligence, specializing in training, inferencing, and deploying AI solutions on Cisco hardware, encompassing compute, network, and storage environments. His unique blend of technical acumen and solution-oriented approach po-sitions him as a valuable contributor to any AI design initiative.
+Keith Brant, Customer Delivery Architect, Cisco Systems, Inc.
+Keith has more than 25 years of experience in IT, 15 of which have been at Cisco. He focuses on Compute, Virtualization, Hyperconverged Infrastructure, and AI. Keith earned a bachelor’s degree in Computer Man-agement Systems.
+Anurag Guda, Technical Marketing Engineer, NVIDIA
+Anurag Guda is a technical marketing engineer at NVIDIA, focusing on building AI software solutions on cloud-native technologies. He helps customers to deploy applications on the EGX platform with NVIDIA Certified Systems. He also works closely with leading ISVs, and OEMs partners to bring AI solutions to enterprise. Anurag has an M.Sc. in engineering and technology from Murray State University.
+Kamini Singh, Technical Marketing Engineer, Hybrid Cloud Infra & OEM Solutions, NetApp Inc.
+Kamini Singh is a Technical Marketing engineer at NetApp. She has more than five years of experience in data center infrastructure solutions. She focuses on FlexPod hybrid cloud infrastructure solution design, implemen-tation, validation, automation, and sales enablement. Kamini holds a bachelor’s degree in Electronics and Communication and a master’s degree in Communication Systems.
+Kavyashree Mahadevaiah, Technical Marketing Engineer, Hybrid Cloud Infra & OEM Solutions, NetApp Inc.  
+Kavyashree Mahadevaiah is a Technical Marketing Engineer for the FlexPod solutions team and has more than 2 years of experience in Data Center infrastructure solutions which includes On-prem, Hybrid cloud space. She focuses on the design, implementation, validation and automation of converged infrastructure and hybrid cloud infrastructure solutions. Kavyashree holds a Bachelor's degree in Electronics and Communication.
+Acknowledgements
+For their support and contribution to the design, validation, and creation of this Cisco Validated Design, the authors would like to thank:
+●	John George, Technical Marketing Engineer, Cisco Systems, Inc.
+●	Chris O'Brien, Senior Director, Cisco Systems, Inc.
+●	Dwight Ludington, Customer Delivery Architect, Cisco Systems, Inc.
+●	Rohit Mittal, Product Manager, Cisco Systems, Inc.
+●	Urshila Lohani, Product Manager, Cisco Systems, Inc.
+●	Abhinav Singh, Senior Technical Marketing Engineer, NetApp Inc.
+●	Sriram Sagi, Principal Product Manager, FlexPod, NetApp Inc.
+●	Bobby Oommen, Senior Manager, FlexPod Solutions, NetApp Inc.
