@@ -1,0 +1,98 @@
+OpenShift Container Platform Installation and Configuration for FlexPod for Accelerated RAG Pipeline with NVIDIA NIM and Cisco Webex  Design and Deployment Guide
+
+
+OCP 4.16 is deployed on the Cisco UCS infrastructure as M.2 booted bare metal servers. The Cisco UCS X210C M7 servers need to be equipped with an M.2 controller (SATA or NVMe) card and either 1 or 2 identical M.2 drives. Three master nodes and three worker nodes are deployed in the validation environment and additional worker nodes can easily be added to increase the scalability of the solution. This document will guide you through the process of using the Assisted Installer to deploy OCP 4.16.
+OpenShift Container Platform – Installation Requirements
+The Red Hat OCP Assisted Installer provides support for installing OpenShift Container Platform on bare metal nodes. This guide provides a methodology to achieving a successful installation using the Assisted Installer.
+Prerequisites
+The FlexPod for OCP utilizes the Assisted Installer for OCP installation therefore when provisioning and managing the FlexPod infrastructure, you must provide all the supporting cluster infrastructure and resources, including an installer VM or host, networking, storage, and individual cluster machines.
+The following supporting cluster resources are required for the Assisted Installer installation:
+●	The control plane and compute machines that make up the cluster
+●	Cluster networking
+●	Storage for the cluster infrastructure and applications
+●	The Installer VM or Host
+Network Requirements
+The following infrastructure services need to be deployed to support the OCP cluster, during the validation of this solution we have provided VMs on your hypervisor of choice to run the required services. Customers can use existing DNS and DHCP services available in the data center:
+There are various infrastructure services prerequisites for deploying OCP 4.16. These prerequisites are as follows:
+●	DNS and DHCP services – these services were configured on Microsoft Windows Server VMs in this validation
+●	NTP Distribution was done with Nexus switches
+●	Specific DNS entries for deploying OCP – added to the DNS server
+●	A Linux VM for initial automated installation and cluster management – a Rocky Linux / RHEL VM with appropriate packages
+NTP
+Each OpenShift Container Platform node in the cluster must have access to at least two NTP servers.
+NICs
+NICs configured on the Cisco UCS servers based on the design previously discussed.
+DNS
+Clients access the OpenShift Container Platform cluster nodes over the bare metal network. Configure a sub-domain or subzone where the canonical name extension is the cluster name.
+The following domain and OCP cluster names are used in this deployment guide:
+●	Base Domain: flexpodb4.cisco.com
+●	OCP Cluster Name: ocp
+The DNS domain name for the OCP cluster should be the cluster name followed by the base domain, for example, ocp.flexpodb4.cisco.com. 
+Table 11 lists the information for fully qualified domain names used during validation. The API and Nameserver addresses begin with canonical name extensions. The hostnames of the control plane and worker nodes are exemplary, so you can use any host naming convention you prefer.
+
+
+DHCP
+For the bare metal network, a network administrator must reserve several IP addresses, including:
+●	One IP address for the API endpoint 
+●	One IP address for the wildcard Ingress endpoint
+●	One IP address for each master node (DHCP server assigns to the node)
+●	One IP address for each worker node (DHCP server assigns to the node)
+Note:  	Get the MAC addresses of the bare metal Interfaces from the UCS Server Profile for each node to be used in the DHCP configuration to assign reserved IP addresses to the nodes. The KVM IP address also needs to be gathered for the master and worker nodes from the server profiles.
+
+Procedure 1.	Gather MAC Addresses of Node Bare Metal Interfaces
+Step 1. 	Log into Cisco Intersight.
+Step 2. 	Select Infrastructure Service > Profiles > Server Profile (for example, ocp-worker2).
+Step 3. 	In the center pane, select Inventory > Network Adapters > Network Adapter (for example, UCSX-ML-V5D200G).
+Step 4. 	In the center pane, select Interfaces.
+Step 5. 	Record the MAC address for NIC Interface eno5.
+Step 6. 	Select the General tab and select Identifiers in the center pane.
+Step 7. 	Record the Management IP assigned from the OCP-BareMetal-IP-Pool.
+
+
+Step 8. 	From Table 12, enter the hostnames, IP addresses, and MAC addresses as reservations in your DHCP and DNS server(s) or configure the DHCP server to dynamically update DNS.
+Step 9. 	You will need to pipe VLAN interfaces for all 5 storage VLANs into your DHCP server(s) and assign IPs in the storage networks on those interfaces. Then create a DHCP scope for each storage VLAN and subnet where the IPs assigned by the scope do not overlap with storage LIF IPs.
+Step 10. 	Set up either a VM or spare server as an OCP-Installer machine with the network interface connected to the Bare Metal VLAN and install either Red Hat Enterprise Linux (RHEL) 9.4 or Rocky Linux 9.4 “Server with GUI” and create an administrator user. Once the VM or host is up and running, update it and install and configure XRDP. Also, install Google Chrome onto this machine. Connect to this host with a Windows Remote Desktop client as the admin user.
+Procedure 2.	Install Red Hat OCP using the Assisted Installer
+Step 1. 	From the Installer desktop, open a terminal session and create an SSH key pair to use to com-municate with the OCP hosts:
+ssh-keygen -t ed25519 -N '' -f ~/.ssh/id_ed25519
+Step 2. 	Copy the public SSH key to the user directory:
+cp ~/.ssh/id_ed25519.pub ~/
+Step 3. 	Add the private key to the ssh-agent:
+ssh add ~/.ssh/id_ed25519
+Step 4. 	Launch Chrome and connect to https://console.redhat.com/openshift/cluster-list. Log into your Red Hat account.
+Step 5. 	Click Create cluster to create an OCP cluster.
+Step 6. 	Select Datacenter and then select Bare Metal (x86_64). 
+Step 7. 	Select Interactive to launch the Assisted Installer.
+Step 8. 	Provide the cluster name and base domain. Scroll down and click Next.
+Step 9. 	It is not necessary to install any Operators at this time, they can be added later. Click Next.
+Step 10. 	Click Add hosts.
+Step 11. 	Under Provisioning type, from the drop-down list select the Full image file. Under SSH public key, click Browse and browse to, select, and open the id_ed25519.pub file. The contents of the public key should now appear in the box. Click Generate Discovery ISO.
+Step 12. 	Click Download Discovery ISO to download the Discover ISO into the Downloads directory. Click Close when the download is done.
+Step 13. 	Use Chrome to connect to Cisco Intersight and log into the Intersight account set up earlier.
+Step 14. 	Go to Infrastructure Service > Operate > Servers and open a vKVM session on each of the six servers. If the servers are powered on, each server’s console should be connected to the Cisco UEFI Interactive Shell.
+Step 15. 	In each of the six vKVMs, click Virtual Media and select vKVM-Mapped DVD. Map the Discovery ISO from the Downloads folder. Go to Power > Reset System and then click Confirm to boot the server from the Discovery ISO. Boot all six servers from the Discovery ISO.
+Step 16. 	Once all six servers have booted “RHEL CoreOS (Live)” from the Discovery ISO, they will appear in the Assisted Installer. From the drop-down lists under Role, assign the appropriate server roles. Scroll down and click Next.
+Step 17. 	Expand each node and verify CoreOS and OCP is being installed to sda (the M.2 device). Click Next.
+Step 18. 	Under Network Management, make sure Cluster-Managed Networking is selected. Under Machine network, from the drop-down list select the subnet for the BareMetal VLAN. Enter the API IP for the api.cluster.basedomain entry in the DNS servers. For the Ingress IP, enter the IP for the *.apps.cluster.basedomain entry in the DNS servers.
+Step 19. 	Scroll down. All nodes should all have a status of Ready. Click Next.
+Step 20. 	Review the information and click Install cluster to begin the cluster installation.
+Step 21. 	On the Installation progress page, expand the Host inventory. The installation will take 30-45 minutes. When installation is complete, all nodes displays a Status of Installed.
+Step 22. 	Select Download kubeconfig to download the kubeconfig file. In a terminal window, setup a cluster directory and save credentials:
+Step 23. 	In the Assisted Installer, click the icon to copy the kubeadmin password:
+Step 24. 	In a new tab in Chrome, connect to https://access.redhat.com/downloads/content/290. Down-load the OpenShift Linux Client:
+Step 25. 	To enable oc tab completion for bash, run the following:
+oc completion bash > oc_bash_completion
+sudo mv oc_bash_completion /etc/bash_completion.d/
+Step 26. 	In Chrome, in the Assisted Installer page, click Launch OpenShift Console to launch the OCP Console. Use kubeadmin and the kubeadmin password to login. On the left, select Compute > Nodes to see the status of the OCP nodes.
+Step 27. 	In the Red Hat OpenShift console, go to Compute > Bare Metal Hosts. For each Bare Metal Host, click the ellipses to the right of the host and select Edit Bare Metal Host. Select Enable power management. Using Table12, fill in the BMC Address. Also, make sure the Boot MAC Address matches the MAC address in Table12. For the BMC Username and BMC Password, use what was entered into the Cisco Intersight IPMI over LAN policy. Click Save to save the changes. Repeat this step for all Bare Metal Hosts.
+Step 28. 	Go to Compute > Bare Metal Hosts. Once all hosts have been configured. The Status should show “Externally provisioned,” and the Management Address should be populated. You can now manage power on the OCP hosts from the OCP console.
+ 
+Step 29. 	To configure storage networking on the worker nodes, NTP on the worker and master nodes, and NVMe-TCP on the worker nodes, run the following:
+cd
+cd <cluster-name> # For example, ocp
+mkdir machine-configs
+cd machine-configs
+curl https://mirror.openshift.com/pub/openshift-v4/clients/butane/latest/butane --output butane
+chmod +x butane
+Step 30. 	Build the following files in the machine-configs directory with variations for your network:
+Note:  	It is critical that the NetworkManager configuration files have the mode “0600” to set the permissions of the file correctly.
