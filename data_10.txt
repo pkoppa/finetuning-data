@@ -1,0 +1,248 @@
+Benchmarking, Evaluation, and Sizing for FlexPod for Accelerated RAG Pipeline with NVIDIA NIM and Cisco Webex  Design and Deployment Guide
+
+This chapter contains the following:
+●	NIM for LLM Benchmarking
+●	Sizing
+●	RAG Evaluation
+●	Milvus Benchmarking with VectorDBBench
+This section examines the performance benchmarking of NIM for LLM, RAG Evaluation using RAGAS framework, Sizing guidance for GPU and model selection and vector database benchmarking.
+NIM for LLM Benchmarking
+Benchmarking the deployment of Large Language Models (LLMs) involves understanding key metrics such as inference latency and throughput, which are crucial for evaluating performance. Developers and enterprise system owners can utilize various benchmarking tools, each with distinct features and capabilities, to measure these metrics effectively. 
+GenAI-Perf is a tool for measuring and analyzing the performance indicators, ensuring their LLM deployments are optimized for efficiency and scalability.
+How LLM Inference Works
+Before examining benchmark metrics, it is crucial to understand the mechanics of LLM inference and the as-sociated terminologies. An LLM application generates results through a multi-stage inference process. Initially, the user submits a query (prompt), which enters a queue, awaiting its turn for processing—this is the queuing phase. Next, the LLM model processes the prompt during the prefill phase. Finally, the model generates a response token by token in the generation phase.
+A token, a fundamental concept in LLMs, serves as a core performance metric for LLM inference. It represents the smallest unit of natural language that the LLM processes. The aggregation of all tokens forms the vocabulary, with each LLM employing a tokenizer learned from data to efficiently represent input text. Typically, for many popular LLMs, one token approximates 0.75 English words.
+Sequence length pertains to the length of the data sequence. The Input Sequence Length (ISL) denotes the number of tokens the LLM receives, encompassing the user query, system prompts (e.g., model instructions), previous chat history, chain-of-thought reasoning, and documents from the retrieval-augmented generation (RAG) pipeline. The Output Sequence Length (OSL) indicates the number of tokens the LLM generates. Context length refers to the number of tokens the LLM utilizes at each generation step, including both input and output tokens generated thus far. Each LLM has a maximum context length that can be allocated to both input and output tokens.
+Streaming is a feature that allows partial LLM outputs to be returned to users incrementally, in chunks of tokens generated so far. This is particularly advantageous for chatbot applications, where receiving an initial response quickly is desirable. While the user processes the partial content, the subsequent chunk of the result is generated in the background. Conversely, in non-streaming mode, the complete answer is returned in a single response.
+Metrics
+There can be variations in the benchmarking results between different tools. Figure 14 illustrates some of the widely used LLM inference metrics.
+Figure 14. 	Overview of popular LLM inference performance metrics.
+ 
+Time to First Token
+Time to First Token (TTFT) measures the duration from submitting a query to receiving the first token of the model’s output. This metric encompasses request queuing time, prefill time, and network latency. Generally, a longer prompt results in a higher TTFT due to the attention mechanism, which requires the entire input sequence to compute and create the key-value cache (KV-cache) before the iterative generation loop can commence. In production environments, multiple requests may be processed simultaneously, causing the prefill phase of one request to overlap with the generation phase of another, further impacting TTFT.
+Figure 15. 	Overview of popular LLM inference performance metrics.
+ 
+Generation Time 
+Generation time is the duration from the first token received to the final token received. GenAI-Perf removes the last [done] signal or empty response, so they don’t get included in the e2e latency.
+End-to-End Request Latency (e2e_latency)
+End-to-End Request Latency (e2e_latency) quantifies the total time from submitting a query to receiving the complete response. This metric encompasses the performance of queuing/batching mechanisms and network latencies as demonstrated in Figure 16. 
+Figure 16. 	End-to-end Request latency
+ 
+Mathematically, it is expressed as: e2e_latency=TTFT + Generation Time
+For an individual request, the end-to-end request latency is the time difference between when the request is sent and when the final token is received. This metric provides a comprehensive measure of the system’s respon-siveness, accounting for all stages of the request processing pipeline.
+Inter Token Latency (ITL)
+This is defined as the average time between consecutive tokens and is also known as time per output token (TPOT).
+Figure 17. 	ITL - Latency between successive token generations.
+ 
+GenAI-Perf defines ITL as follows:
+ 
+The equation for this metric excludes the first token (hence subtracting 1 in the denominator) to ensure that Inter-Token Latency (ITL) reflects only the decoding phase of request processing.
+Longer output sequences increase the size of the KV cache, thereby raising memory costs. Additionally, the cost of attention computation grows linearly with the length of the combined input and output sequence for each new token, although this computation is typically not compute-bound. Consistent inter-token latencies indicate efficient memory management, optimal memory bandwidth utilization, and effective attention computation.
+Tokens Per Second (TPS)
+Total TPS per system represents the total output tokens per seconds throughput, accounting for all the requests happening simultaneously. As the number of requests increases, the total TPS per system increases, until it reaches a saturation point for all the available GPU compute resources, beyond which it might decrease.
+Given the following timeline of the entire benchmark with n total requests.
+Figure 18. 	Timeline of events in a benchmarking run
+ 
+Li : End-to-end latency of i-th request
+T_start : start of benchmark
+Tx : timestamp of the first request
+Ty : timestamp of the last response of the last request
+T_end : end of benchmark
+GenAI-perf defines the TPS as total output tokens divided by the end-to-end latency between the first request and the last response of the last request.
+ 
+Requests Per Second (RPS)
+This is the average number of requests that can be successfully completed by the system in a 1-second period. It is calculated as:
+ 
+Use Cases
+An application’s specific use cases influence sequence lengths - Input Sequence Length(ISL) and Output Se-quence Length(OSL), which in turn affect how efficiently a system processes input to form the KV-cache and generate output tokens. Longer ISL increases memory requirements for the prefill stage, thereby extending TTFT, while longer OSL increases memory requirements (both bandwidth and capacity) for the generation stage, thus raising ITL. Understanding the distribution of inputs and outputs in an LLM deployment is crucial for optimizing hardware utilization. Common use cases and their typical ISL/OSL pairs include:
+●	Translation 
+Involves translating between languages and code, characterized by similar ISL and OSL, typically ranging from 500 to 2000 tokens each.
+●	Generation
+Encompasses generating code, stories, emails, and generic content via search, characterized by an OSL of O(1000) tokens, significantly longer than an ISL of O(100) tokens.
+●	Summarization 
+Includes retrieval, chain-of-thought prompting, and multi-turn conversations, characterized by an ISL of O(1000) tokens, much longer than an OSL of O(100) tokens.
+Real data can also be used as inputs. GenAI-Perf supports datasets such as HuggingFace OpenOrca and CNN Dailymail.
+Load Control
+●	Concurrency (N) 
+Refers to the number of concurrent users, each with one active request, or equivalently, the number of requests being served simultaneously by an LLM service. As soon as a user’s request receives a complete response, another request is sent, ensuring the system always has exactly N active requests.
+LLMperf sends requests in batches of N but includes a draining period where it waits for all requests to complete before sending the next batch. Consequently, the number of concurrent requests gradually reduces to zero towards the end of the batch. This differs from GenAI-perf, which maintains N active requests throughout the benchmarking period.
+Concurrency is primarily used to describe and control the load on the inference system.
+●	Max Batch Size
+A batch is a group of simultaneous requests processed by the inference engine, which may be a subset of the concurrent requests. The maximum batch size parameter defines the maximum number of requests the inference engine can process simultaneously.
+If concurrency exceeds the maximum batch size multiplied by the number of active replicas, some re-quests will queue for later processing, potentially increasing the Time-to-First-Token (TTFT) due to the queuing effect.
+●	Request Rate 
+This parameter controls load by determining the rate at which new requests are sent. A constant (static) request rate ( r ) means one request is sent every ( \frac{1}{r} ) seconds, while a Poisson (exponential) request rate determines the average inter-arrival time.
+GenAI-perf supports both concurrency and request rate, but concurrency is recommended. With request rate, the number of outstanding requests may grow unbounded if the requests per second exceed system throughput.
+When specifying concurrencies to test, it is useful to sweep over a range of values, from a minimum of 1 to a maximum not much greater than the max batch size. When concurrency exceeds the max batch size of the engine, some requests will queue, causing system throughput to saturate around the max batch size while latency steadily increases.
+Procedure 1.	Set up GenAI-Perf
+Step 1. 	Make sure that the NIM LLama-3 inference service is running:
+
+[admin@ocp-installer ~]$ oc -n nim-llm get pods
+NAME               READY   STATUS    RESTARTS   AGE
+pkoppa-nim-llm-0   1/1     Running   0          19h 
+
+
+
+[admin@ocp-installer ~]$ oc -n nim-llm get svc
+NAME                 TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)          AGE
+pkoppa-nim-llm       NodePort    172.30.183.181   <none>        8000:31641/TCP   3d8h
+pkoppa-nim-llm-sts   ClusterIP   None             <none>        8000/TCP         3d8h. 
+
+Step 2. 	Observe that the POD is running. The cluster IP of the service is 172.30.183.181 and it’s running on Port 8000. It is also exposed as NodePort on Port 31641.
+Step 3. 	Make a test chat completion to make sure that the LLM endpoint is working:
+
+curl -X GET 'http://172.30.183.181:8000/v1/models'
+curl -X 'POST' \
+    'http://172.30.183.181:8000/v1/completions' \
+    -H 'accept: application/json' \
+    -H 'Content-Type: application/json' \
+    -d '{
+"model": "meta/llama3-8b-instruct",
+"prompt": "Capital of USA",
+"max_tokens": 64
+}' 
+
+Once the NIM LLama-3 inference service is running, you can set up a benchmarking tool. The easiest way to install GenAI-Perf is by creating a deployment object in OpenShift using the Triton Server SDK container image. 
+Step 4. 	A sample deployment YAML manifest is provided below:
+Figure 19. 	Sample Deployment Manifest
+ 
+It is recommended to starting a GenAI-perf pod on the same server as NIM to avoid network latency unless you specifically want to factor in the network latency as part of the measurement. Therefore nodeName: ocp-worker1.ocp.flexpodb4.cisco.com is passed in pod spec.
+Step 5. 	The image pull secret is required with a NGC API key to download the image. It can be created using:
+
+oc create secret docker-registry ngc-registry --docker-server=nvcr.io --docker-username=\$oauthtoken --docker-password=<API Key>
+Step 6. 	A repository is required to store the NeMo check points and other temp folders. A sample PVC configuration to provide persistent storage to the pod is provided below:
+Figure 20. 	Sample PVC
+ 
+Step 7. 	Apply the YAML manifests against the OpenShift cluster and make sure all the resources are created:
+
+[admin@ocp-installer ~]$ oc -n genaiperf get secrets 
+NAME           TYPE                             DATA   AGE
+ngc-registry   kubernetes.io/dockerconfigjson   1      4d12h
+
+
+
+
+
+[admin@ocp-installer ~]$ oc -n genaiperf get pvc
+NAME              STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+genai-perf-data   Bound    pvc-6be6a2a5-c6d0-4d03-b36e-6906dd968d26   50Gi       RWO            ontap-nfs      <unset>                 4d12h
+
+
+
+
+[admin@ocp-installer ~]$ oc -n genaiperf get pods
+NAME                          READY   STATUS    RESTARTS   AGE
+genai-perf-5ffd6d466b-zrg4n   1/1     Running   0          19h
+
+
+Step 8. 	From the above output, you can see that the pod is running. Run the following commands to get access to the pod:
+
+[admin@ocp-installer ~]$ oc -n genaiperf exec -it genai-perf-5ffd6d466b-zrg4n -- bash
+root@genai-perf-5ffd6d466b-zrg4n:/workspace#
+
+Step 9. 	Once inside the pod, you can start the GenAI-perf evaluation harness as follows, which runs a warming load test on the NIM backend:
+
+export INPUT_SEQUENCE_LENGTH=500
+export INPUT_SEQUENCE_STD=10
+export OUTPUT_SEQUENCE_LENGTH=100
+export CONCURRENCY=10
+export MODEL=meta/llama3-8b-instruct
+
+
+genai-perf \
+    -m $MODEL \
+    --endpoint-type chat \
+    --service-kind openai \
+    --streaming \
+    -u 172.30.183.181:8000 \
+    --synthetic-input-tokens-mean $INPUT_SEQUENCE_LENGTH \
+    --synthetic-input-tokens-stddev $INPUT_SEQUENCE_STD \
+    --concurrency $CONCURRENCY \
+    --output-tokens-mean $OUTPUT_SEQUENCE_LENGTH \
+    --extra-inputs max_tokens:$OUTPUT_SEQUENCE_LENGTH \
+    --extra-inputs min_tokens:$OUTPUT_SEQUENCE_LENGTH \
+    --extra-inputs ignore_eos:true \
+    --tokenizer meta-llama/Meta-Llama-3-8B-Instruct \
+    -- \
+    -v \
+    --max-threads=256
+
+This example specifies the input and output sequence length and a concurrency to test.
+Step 10. 	This test will use the llama-3 tokenizer from HuggingFace, which is a guarded repository. You will need to apply for access, then login with your HF credential:
+
+pip install huggingface_hub
+huggingface-cli login
+
+Step 11. 	With a successful execution, you will see similar results in the terminal as shown below: 
+ 
+When the tests complete, GenAI-perf generates the structured outputs in a default directory named “artifacts” under your mounted working directory (/workdir in these examples), organized by model name, concurrency, and input/output length. Your results should look similar to the following:
+
+root@genai-perf-5ffd6d466b-zrg4n:/workspace/artifacts# find .
+.
+./meta_llama3-8b-instruct-openai-chat-concurrency10
+./meta_llama3-8b-instruct-openai-chat-concurrency10/llm_inputs.json
+./meta_llama3-8b-instruct-openai-chat-concurrency10/profile_export_genai_perf.json
+./meta_llama3-8b-instruct-openai-chat-concurrency10/profile_export_genai_perf.csv
+./meta_llama3-8b-instruct-openai-chat-concurrency10/profile_export.json
+root@genai-perf-5ffd6d466b-zrg4n:/workspace/artifacts# 
+
+Procedure 2.	Sweep through Use Cases
+Typically, with benchmarking, a test would be set up to sweep over a number of use cases, such as input/output length combinations, and load scenarios, such as different concurrency values. 
+Step 1. 	Use the following bash script to define the parameters so that GenAI-perf executes through all the combinations.
+
+declare -A useCases
+
+# Populate the array with use case descriptions and their specified input/output lengths
+useCases["Translation"]="200/200"
+useCases["Text classification"]="200/5"
+useCases["Text summary"]="1000/200"
+
+# Function to execute genAI-perf with the input/output lengths as arguments
+runBenchmark() {
+    local description="$1"
+    local lengths="${useCases[$description]}"
+    IFS='/' read -r inputLength outputLength <<< "$lengths"
+
+    echo "Running genAI-perf for$descriptionwith input length$inputLengthand output length$outputLength"
+    #Runs
+    for concurrency in 1 2 5 10 50 100 250; do
+
+        local INPUT_SEQUENCE_LENGTH=$inputLength
+        local INPUT_SEQUENCE_STD=0
+        local OUTPUT_SEQUENCE_LENGTH=$outputLength
+        local CONCURRENCY=$concurrency
+        local MODEL=meta/llama3-8b-instruct
+
+        genai-perf \
+            -m $MODEL \
+            --endpoint-type chat \
+            --service-kind openai \
+            --streaming \
+            -u 172.30.183.181:8000 \
+            --synthetic-input-tokens-mean $INPUT_SEQUENCE_LENGTH \
+            --synthetic-input-tokens-stddev $INPUT_SEQUENCE_STD \
+            --concurrency $CONCURRENCY \
+            --output-tokens-mean $OUTPUT_SEQUENCE_LENGTH \
+            --extra-inputs max_tokens:$OUTPUT_SEQUENCE_LENGTH \
+            --extra-inputs min_tokens:$OUTPUT_SEQUENCE_LENGTH \
+            --extra-inputs ignore_eos:true \
+            --tokenizer meta-llama/Meta-Llama-3-8B-Instruct \
+            --measurement-interval 10000 \
+            --profile-export-file ${INPUT_SEQUENCE_LENGTH}_${OUTPUT_SEQUENCE_LENGTH}.json \
+            -- \
+            -v \
+            --max-threads=256
+
+    done
+}
+
+# Iterate over all defined use cases and run the benchmark script for each
+for description in "${!useCases[@]}"; do
+    runBenchmark "$description"
+done
+
+Step 2. 	Save this script in a working directory, such as under /workdir/benchmark.sh. You can then execute it with the following command:
+
+cd /workdir
+bash benchmark.sh 
+
