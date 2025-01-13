@@ -1,0 +1,43 @@
+Solution Design of FlexPod for Accelerated RAG Pipeline with NVIDIA NIM and Cisco Webex  Design and Deployment Guide
+Design Requirements
+This solution meets the following general design requirements:
+●	Resilient design across all layers of the infrastructure with no single point of failure 
+●	Scalable and flexible design to add compute capacity, storage, or network bandwidth as needed sup-ported by various models of each component
+●	Modular design that can be replicated to expand and grow as the needs of the business grow
+●	Simplified design with ability to integrate and automate with external automation tools
+●	Cloud-enabled design which can be configured, managed, and orchestrated from the cloud using GUI or APIs
+●	Repeatable design for accelerating the provisioning of end-to-end Retrieval Augmented Generation pipeline
+●	Provide a testing methodology to evaluate the performance of the solution
+●	Provide an example implementation of Cisco Webex Chat Bot integration with RAG
+
+FlexPod Topology
+The FlexPod Datacenter for Accelerated RAG Pipeline with NVIDIA NIM and Cisco Webex is built using the following reference hardware components:
+●	2 Cisco Nexus 93600CD-GX Switches in Cisco NX-OS mode provide the switching fabric. Other Cisco Nexus Switches are also supported.
+●	2 Cisco UCS S9108 Fabric Interconnects (FIs) in the chassis provide the chassis connectivity. At least 2 100 Gigabit Ethernet ports from each FI, configured as a Port-Channel, are connected to each Cisco Nexus 93600CD-GX switch. 25 Gigabit Ethernet connectivity is also supported as well as other versions of the Cisco UCS FI that would be used with Intelligent Fabric Modules (IFMs) in the chassis.
+●	1 Cisco UCS X9508 Chassis contains 6 Cisco UCS X210C M7 servers and 2 Cisco UCS X440p PCIe Nodes each with 2 NVIDIA L40S GPUs. Other configurations of servers with and without GPUs are also supported.
+●	1 NetApp AFF C800 HA pair connects to the Cisco Nexus 93600CD-GX Switches using two 100 GE ports from each controller configured as a Port-Channel. 25 Gigabit Ethernet connectivity is also supported as well as other NetApp AFF, ASA, and FAS storage controllers. 
+
+The software components of this solution consist of:
+●	Cisco Intersight SaaS platform to deploy, maintain, and support the FlexPod components
+●	Cisco Intersight Assist Virtual Appliance to connect NetApp ONTAP and Cisco Nexus switches to Cisco Intersight
+●	NetApp Active IQ Unified Manager to monitor and manage the storage and for NetApp ONTAP integration with Cisco Intersight
+●	Red Hat OCP to manage a Kubernetes containerized environment
+
+FlexPod Datacenter with Red Hat OCP on Bare Metal
+Red Hat OCP on Bare Metal Server Configuration
+A simple Red Hat OCP cluster consists of at least five servers – 3 Master or Control Plane Nodes and 2 or more Worker Nodes where applications and VMs are run. In this lab validation 3 Worker Nodes were utilized. Based on OCP published requirements, the three Master Nodes were configured with 64GB RAM, and the three Worker Nodes were configured with 768GB RAM to handle containerized applications and VMs. Each Node was booted from M.2. Both a single M.2 module and 2 M.2 modules with RAID1 are supported. Also, the servers paired with X440p PCIe Nodes were configured as Workers. From a networking perspective, both the Masters and the Workers were configured with a single vNIC with Cisco UCS Fabric Failover in the Bare Metal or Management VLAN. The workers were configured with extra NICs (vNICs) to allow storage attachment to the Workers. Each worker had two additional vNICs with the iSCSI A and B VLANs configured as native to allow iSCSI persistent storage attachment and future iSCSI boot. These vNICs also had the NVMe-TCP A and B allowed VLANs assigned, allowing tagged VLAN interfaces for NVMe-TCP to be defined on the Workers. Finally, each worker had one additional vNIC with the OCP NFS VLAN configured as native to provide NFS persistent storage.
+
+FlexPod Cabling
+The information in this section is provided as a reference for cabling the physical equipment in a FlexPod envi-ronment. To simplify cabling requirements, a cabling diagram was used. 
+The cabling diagram in this section contains the details for the prescribed and supported configuration of the NetApp AFF C800 running NetApp ONTAP 9.14.1.
+Note:  	For any modifications of this prescribed architecture, consult the NetApp Interoperability Matrix Tool (IMT). 
+Note:  	This document assumes that out-of-band management ports are plugged into an existing management infrastructure at the deployment site. These interfaces will be used in various configuration steps.
+Note:  	Be sure to use the cabling directions in this section as a guide. 
+The NetApp storage controller and disk shelves should be connected according to best practices for the specific storage controller and disk shelves. For disk shelf cabling, refer to NetApp Support.
+Figure 12 details the cable connections used in the validation lab for the FlexPod topology based on the Cisco UCS S9108 Fabric Interconnect directly in the chassis. Two 100Gb links connect each Cisco UCS Fabric Interconnect to the Cisco Nexus Switches and each NetApp AFF controller to the Cisco Nexus Switches. Additional 1Gb management connections will be needed for one or more out-of-band network switches that sit apart from the FlexPod infrastructure. Each Cisco UCS Fabric Interconnect and Cisco Nexus switch is connected to the out-of-band network switches, and each AFF controller has a connection to the out-of-band network switches. Layer 3 network connectivity is required between the Out-of-Band (OOB) and In-Band (IB) Management Subnets. 
+
+RAG Design Summary
+Retrieval Augmented Generation (RAG) is designed to empower LLM solutions with real-time data access, preserving data privacy and mitigating LLM hallucinations. A typical RAG pipeline consists of several phases. The process of document ingestion occurs offline, and when an online query comes in, the retrieval of relevant documents and the generation of a response occurs. By using RAG, you can provide up-to-date and proprietary information with ease to LLMs and build a system that increases user trust, improves user experiences, and reduces hallucinations. NVIDIA RAG Enterprise designed with NVIDIA NeMo is an end-to-end platform for de-veloping custom generative AI, anywhere. Deliver enterprise-ready models with precise data curation, cut-ting-edge customization, RAG, and accelerated performance.
+The FlexPod architecture is designed as described in this CVD: FlexPod Datacenter with Red Hat OCP Bare Metal Manual Configuration with Cisco UCS X-Series Direct Deployment Guide. NVIDIA AI Enterprise and NVIDIA NIM microservices were installed to build a powerful platform for running Retrieval Augmented Generation. This lay-ered approach, depicted below, was configured with best practices and security in mind, resulting in a high-performance, secure platform for Retrieval Augmented Generation. This platform can be extended for further AI applications such as Training, Fine Tuning, and other Inferencing use cases, provided that the platform is sized for the application.
+
+
