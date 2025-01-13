@@ -1,4 +1,4 @@
-bout the Authors
+About the Authors
 Paniraja Koppa, Technical Marketing Engineer, Cisco Systems, Inc.
 Paniraja Koppa is a member of the Cisco Unified Computing System (Cisco UCS) solutions team. 
 He has over 15 years of experience designing, implementing, and operating solutions in the data center. 
@@ -41,12 +41,11 @@ Kavyashree Mahadevaiah, Technical Marketing Engineer, Hybrid Cloud Infra & OEM S
 Kavyashree Mahadevaiah is a Technical Marketing Engineer for the FlexPod solutions team and has more than 2 years of experience in Data Center infrastructure solutions which includes On-prem, Hybrid cloud space. 
 She focuses on the design, implementation, validation and automation of converged infrastructure and hybrid cloud infrastructure solutions. Kavyashree holds a Bachelor's degree in Electronics and Communication.
 
-
+Chris O'Brien, Senior Director, Cisco Systems, Inc.
+Chris O'Brien is a Senior Technical Marketing Director in Cisco's Cloud and Computing Systems Product Group. He is currently responsible for the development of Cisco Validated Designs (CVDs) for Cisco's UCS converged infrastructure solutions, Cisco's scale-out storage solutions, Cisco’s data protection solutions, and Cisco's hyper-converged infrastructure solution HyperFlex. In addition, Chris is responsible for UCS server performance benchmarking and tools. Previously O'Brien was an application developer, technical marketing engineer, and solution architect.
 
 Acknowledgements
 For their support and contribution to the design, validation, and creation of this Cisco Validated Design, the authors would like to thank:
-●	John George, Technical Marketing Engineer, Cisco Systems, Inc.
-●	Chris O'Brien, Senior Director, Cisco Systems, Inc.
 ●	Dwight Ludington, Customer Delivery Architect, Cisco Systems, Inc.
 ●	Rohit Mittal, Product Manager, Cisco Systems, Inc.
 ●	Urshila Lohani, Product Manager, Cisco Systems, Inc.
