@@ -1,0 +1,15 @@
+bout the Authors
+Paniraja Koppa, Technical Marketing Engineer, Cisco Systems, Inc.
+Paniraja Koppa is a member of the Cisco Unified Computing System (Cisco UCS) solutions team. 
+He has over 15 years of experience designing, implementing, and operating solutions in the data center. 
+In his current role, he works on design and development, best practices, optimization, automation and technical content creation of compute and hybrid cloud solutions. 
+He also worked as technical consulting engineer in the data center vir-tualization space. Paniraja holds a master’s degree in computer science. 
+He has presented several papers at international conferences and speaker at events like Cisco Live US and Europe, Open Infrastructure Summit, and other partner events. 
+Paniraja’s current focus is on Generative AI solutions.
+
+
+
+John George, Technical Marketing Engineer, Cisco Systems, Inc.
+John is involved in designing, developing, validating, and supporting the FlexPod Converged Infrastructure since its inception. 
+Prior to his role with FlexPod, John supported and administered a large worldwide training network and VPN infrastructure. 
+John holds a master’s degree in Computer Engineering from Clemson University.
